@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente SOAP</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+        }
+
+        /* Footer styles */
+        footer {
+            background-color: #f8f9fa;
+            padding: 10px 0;
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container mt-5">
+    <h2>Cliente SOAP</h2>
+    <form action="/" method="post" onsubmit="return validateForm()" class="mt-4">
+        <div class="form-group">
+            <label for="operation">Operación:</label>
+            <select name="operation" id="operation" class="form-control" onchange="updateInputs(this.value)">
+                <option value="obtenerVehiculos" {{ 'selected' if request.form['operation'] == 'obtenerVehiculos' else '' }}>Obtener Vehículos</option>
+                <option value="obtenerVehiculo" {{ 'selected' if request.form['operation'] == 'obtenerVehiculo' else '' }}>Obtener Vehículo</option>
+                <option value="crearVehiculo" {{ 'selected' if request.form['operation'] == 'crearVehiculo' else '' }}>Crear Vehículo</option>
+                <option value="consultaValorSeguro" {{ 'selected' if request.form['operation'] == 'consultaValorSeguro' else '' }}>Consultar Valor Seguro</option>
+                <option value="consultarTodoRiesgo" {{ 'selected' if request.form['operation'] == 'consultarTodoRiesgo' else '' }}>Consultar Todo Riesgo</option>
+                <option value="consultarSOAT" {{ 'selected' if request.form['operation'] == 'consultarSOAT' else '' }}>Consultar SOAT</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="placaDiv">
+            <label for="placa">Placa:</label>
+            <input type="text" id="placa" name="placa" class="form-control" value="{{ request.form['placa'] }}">
+        </div>
+
+        <div id="datosVehiculoDiv" style="display:none;">
+            <div class="form-group">
+                <label for="modelo">Modelo:</label>
+                <input type="text" id="modelo" name="modelo" class="form-control" value="{{ request.form['modelo'] }}">
+            </div>
+
+            <div class="form-group">
+                <label for="precio">Precio:</label>
+                <input type="text" id="precio" name="precio" class="form-control" value="{{ request.form['precio'] }}">
+            </div>
+
+            <div class="form-group">
+                <label for="soat">Año SOAT:</label>
+                <input type="text" id="soat" name="soat" class="form-control" value="{{ request.form['soat'] }}">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Ejecutar</button>
+    </form>
+
+    <div class="mt-5">
+        <strong>Resultado:</strong>
+        {% if request.form['operation'] == 'obtenerVehiculos' %}
+        <!-- ... Código para mostrar la tabla ... -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Placa</th>
+                    <th>Modelo</th>
+                    <th>Precio</th>
+                    <th>Último Año Pago SOAT</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehiculo in resultado %}
+                <tr>
+                    <td>{{ vehiculo['placa'] }}</td>
+                    <td>{{ vehiculo['modelo'] }}</td>
+                    <td>{{ vehiculo['precio'] }}</td>
+                    <td>{{ vehiculo['ultimoAnoPagoSOAT'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif request.form['operation'] == 'obtenerVehiculo' %}
+        <!-- ... Código para mostrar el detalle del vehículo ... -->
+        <div class="card mt-3">
+            <div class="card-header">
+                Detalles del Vehículo
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Placa:</strong> {{ resultado['placa'] }}</li>
+                <li class="list-group-item"><strong>Modelo:</strong> {{ resultado['modelo'] }}</li>
+                <li class="list-group-item"><strong>Precio:</strong> {{ resultado['precio'] }}</li>
+                <li class="list-group-item"><strong>Último Año Pago SOAT:</strong> {{ resultado['ultimoAnoPagoSOAT'] }}</li>
+            </ul>
+        </div>
+        {% elif request.form['operation'] == 'crearVehiculo' %}
+        <!-- ... Código para mostrar la respuesta de crearVehiculo ... -->
+        {% if resultado == true %}
+        <div class="alert alert-success mt-3" role="alert">
+            <i class="fas fa-check-circle"></i> Vehículo creado exitosamente.
+        </div>
+        {% else %}
+        <div class="alert alert-danger mt-3" role="alert">
+            <i class="fas fa-times-circle"></i> No se pudo crear el vehículo.
+        </div>
+        {% endif %}
+        {% elif request.form['operation'] == 'consultaValorSeguro' %}
+        <div class="alert alert-warning mt-3" role="alert">
+            <i class="fas fa-exclamation-circle"></i> El valor del seguro es: {{ resultado }}
+        </div>
+        {% elif request.form['operation'] == 'consultarTodoRiesgo' %}
+        <div class="alert alert-warning mt-3" role="alert">
+            <i class="fas fa-exclamation-circle"></i> El valor del seguro todo riesgo es: {{ resultado }}
+        </div>
+        {% elif request.form['operation'] == 'consultarSOAT' %}
+        <div class="alert alert-warning mt-3" role="alert">
+            <i class="fas fa-exclamation-circle"></i> {{ resultado }}
+        </div>
+        {% else %}
+        <p>{{ resultado }}</p>
+        {% endif %}
+    </div>
+</div>
+
+
+<footer>
+    <p>Creado por Santiago Cruz Santisteban y Miguel Ángel Leal Pérez</p>
+</footer>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        updateInputs(document.getElementById('operation').value);
+    });
+
+    function updateInputs(value) {
+        let placaDiv = document.getElementById('placaDiv');
+        let datosVehiculoDiv = document.getElementById('datosVehiculoDiv');
+
+        placaDiv.style.display = 'block';
+        datosVehiculoDiv.style.display = 'none';
+
+        if (value === 'crearVehiculo') {
+            datosVehiculoDiv.style.display = 'block';
+        } else if (value === 'obtenerVehiculos') {
+            placaDiv.style.display = 'none';
+        }
+    }
+
+    function validateForm() {
+        let operation = document.getElementById('operation').value;
+        let placa = document.getElementById('placa').value;
+        let modelo = document.getElementById('modelo').value;
+        let precio = document.getElementById('precio').value;
+        let soat = document.getElementById('soat').value;
+
+        if (operation !== 'obtenerVehiculos' && !placa.match(/^[A-Z]{3}\d{3}$/)) {
+            alert('Por favor, introduce una placa válida (AAA111).');
+            return false;
+        }
+
+        if (operation === 'crearVehiculo') {
+            if (!modelo.match(/^\d{4}$/) || parseInt(modelo) < 1900 || parseInt(modelo) > 2025) {
+                alert('Por favor, introduce un modelo válido (entre 1900 y 2025).');
+                return false;
+            }
+
+            if (isNaN(precio) || parseInt(precio) < 0) {
+                alert('Por favor, introduce un precio válido.');
+                return false;
+            }
+
+            if (!soat.match(/^\d{4}$/) || parseInt(soat) < 1900 || parseInt(soat) > 2025) {
+                alert('Por favor, introduce un año de SOAT válido.');
+                return false;
+            }
+        }
+
+        return true;
+    }
+</script>
+
+</body>
+
+</html>
