@@ -1,4 +1,3 @@
---upgrade pip
 attrs==23.1.0
 blinker==1.6.3
 certifi==2023.7.22
