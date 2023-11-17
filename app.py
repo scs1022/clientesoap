@@ -3,7 +3,7 @@ from zeep import Client
 
 app = Flask(__name__)
 
-wsdl = 'https://santisteban.site/?wsdl'
+wsdl = 'https://servicios-r7yq.onrender.com/?wsdl'
 client = Client(wsdl)
 
 def obtener_vehiculos():
